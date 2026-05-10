@@ -24,8 +24,8 @@ If this tool helps you, please consider one or more of the following:
 
 For more help or to contribute:
 
-- Suggest improvements via [GitHub Issues](https://github.com/DeckCheatz/aurora-launcher/issues)
-- Report / Help solve bugs by [filing / answering an Issue](https://github.com/DeckCheatz/aurora-launcher/issues)
+- Suggest improvements via [GitHub Issues](https://github.com/Merilairon/aurora-launcher/issues)
+- Report / Help solve bugs by [filing / answering an Issue](https://github.com/Merilairon/aurora-launcher/issues)
 
 ## Quick Guide
 
@@ -48,7 +48,7 @@ For more help or to contribute:
    2. Download the latest GE-Proton in `ProtonUp-QT`.
 3. Restart Steam/SteamOS.
 4. In a terminal session (Konsole if using KDE Plasma):
-   1. Change directory to a location of your choosing, then run `git clone https://github.com/DeckCheatz/aurora-launcher`.  
+   1. Change directory to a location of your choosing, then run `git clone https://github.com/Merilairon/aurora-launcher`.  
       Make note of the directory obtained with `readlink -f aurora-launcher` (which will be labeled `{path/to/aurora-launcher}` for the rest of this guide).
    2. Run `chmod -R ug+x aurora-launcher`.  
       **NOTE:** To use this tool with the Flatpak version of Steam (not recommended), additional setup may be required.
