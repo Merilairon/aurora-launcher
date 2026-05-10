@@ -76,13 +76,13 @@ if __name__ == "__main__":
     # On venv path restart the script
     if 0 < len(if_flatpak_list):
         # Use environment variable to protect the script from re-running forever
-        inf_protect = os.getenv("WeModInfProtect", "1")
+        inf_protect = os.getenv("AuroraInfProtect", "1")
         if int(inf_protect) > 4:
             exit_with_message(
                 "Infinite rerun",
-                "Infinite script reruns were detected\nThe script was stopped\nCreate an issue on the wemod_laucher GitHub\nand attach this file",
+                "Infinite script reruns were detected\nThe script was stopped\nCreate an issue on the aurora-launcher GitHub\nand attach this file",
             )
-        os.environ["WeModInfProtect"] = str(int(inf_protect) + 1)
+        os.environ["AuroraInfProtect"] = str(int(inf_protect) + 1)
 
         # if we are in a flatpak we wait for a command to be passed back into the script in a thread
         if len(if_flatpak_list) > 1:
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         command = if_flatpak_list + [SCRIPT_FILE] + sys.argv[1:]
         log(
             f"Re-running script within virtual environment;\nor, to update or run outside the flatpak sandbox with the command:\n\t{command}\n\nThe rerun nr {inf_protect} was started"
-        )
+        )  
 
         # Execute the script within the virtual environment
         try:
@@ -104,7 +104,7 @@ if __name__ == "__main__":
             exit_with_message(
                 "Unknown Command error",
                 f"The command to rerun the script failed because the command returned an unknown error:\n\t{e}\nYou are probably using flatpak,\nin which case make sure to install flatpak-xdg-utils\nand allow system and session bus in Flatseal",
-            )
+            )  
 
         if len(if_flatpak_list) > 1:
             flat_thread.join()
@@ -131,12 +131,12 @@ from constutils import (
 )
 
 
-# Symlink WeMod data to make all WeMod prefixes use the same WeMod data
+# Symlink Aurora data to make all Aurora prefixes use the same Aurora data
 def syncwemod(
     folder: Optional[str] = None,
 ) -> None:
     # This section handles prefix packaging and is kept as-is, as it's a separate concern
-    # from the core WeMod data synchronization logic and includes an intentional exit.
+    # from the core Aurora data synchronization logic and includes an intentional exit.
     package_prefix = os.getenv("PACKAGEPREFIX")
     if not package_prefix:
         package_prefix = load_conf_setting("PackagePrefix")
@@ -164,7 +164,7 @@ def syncwemod(
             log(f"Version is not set for {BASE_STEAM_COMPAT}, Error")
             exit_with_message(
                 "Prefix Version unknown",
-                "The prefix version is unknown. Please make sure the prefix works with WeMod before trying to zip it",
+                "The prefix version is unknown. Please make sure the prefix works with Aurora before trying to zip it",
                 timeout=20,
             )
         cut_proton_version = parse_version(current_proton_version)
@@ -179,10 +179,10 @@ def syncwemod(
         )
 
         if not os.path.isfile(INIT_FILE):
-            log(f"WeMod is not installed in {BASE_STEAM_COMPAT}, error")
+            log(f"Aurora is not installed in {BASE_STEAM_COMPAT}, error")
             exit_with_message(
-                "WeMod not installed",
-                "WeMod is not installed in the active prefix, exiting",
+                "Aurora not installed",
+                "Aurora is not installed in the active prefix, exiting",
                 timeout=20,
             )
 
@@ -225,18 +225,18 @@ def syncwemod(
             timeout=5,
         )
 
-    # WeMod login data synchronization logic starts here
+    # Aurora login data synchronization logic starts here
     if folder is None:
         folder = BASE_STEAM_COMPAT
 
     WeModData = os.path.join(
-        SCRIPT_BASE, "wemod_data", "wemod_login"
+        SCRIPT_BASE, "aurora_data", "aurora_login"
     )  # Central launcher login data
     WeModOldData = os.path.join(
-        SCRIPT_BASE, "wemod_data"
+        SCRIPT_BASE, "aurora_data"
     )  # Central launcher login data in older versions
     old_data_files = [
-        "SharedStorage"  # can add more if we know what files are allways created by WeMod
+        "SharedStorage"  # can add more if we know what files are always created by Aurora
     ]
 
     # Check if any old data files exist directly in WeModOldData
@@ -249,15 +249,15 @@ def syncwemod(
 
     if needs_migration:
         log(
-            f"Old WeMod data files detected in '{WeModOldData}'. Migrating to '{WeModData}'."
+            f"Old Aurora data files detected in '{WeModOldData}'. Migrating to '{WeModData}'."
         )
-        # Ensure the target WeModData directory (wemod_login) exists before moving
+        # Ensure the target WeModData directory (aurora_login) exists before moving
         os.makedirs(WeModData, exist_ok=True)
 
         # Iterate through items in WeModOldData and move them to WeModData, excluding specific folders
         for item_name in os.listdir(WeModOldData):
-            # Exclude the 'wemod_login' (which is WeModData itself) and 'wemod_bin' directories
-            if item_name not in ["wemod_login", "wemod_bin"]:
+            # Exclude the 'aurora_login' (which is WeModData itself) and 'aurora_bin' directories
+            if item_name not in ["aurora_login", "aurora_bin"]:
                 source_path = os.path.join(WeModOldData, item_name)
                 destination_path = os.path.join(WeModData, item_name)
                 try:
@@ -280,9 +280,9 @@ def syncwemod(
                             f"Failed to remove old dir/file '{source_path}': {e}"
                         )
 
-        # move wemod_bin as well
-        old_dir = os.path.join(SCRIPT_BASE, "wemod_bin")
-        new_dir = os.path.join(WeModOldData, "wemod_bin")
+        # move aurora_bin as well
+        old_dir = os.path.join(SCRIPT_BASE, "aurora_bin")
+        new_dir = os.path.join(WeModOldData, "aurora_bin")
         try:
             shutil.move(old_dir, new_dir)
             log(f"Moved '{old_dir}' to '{new_dir}'")
@@ -299,8 +299,8 @@ def syncwemod(
 
         # If migration was needed some old files are in the main folder and need to be moved or cleaned up
         old_files_in_base = [
-            "wemod.conf",
-            "wemod_venv",
+            "aurora.conf",
+            "aurora_venv",
             "winetricks",
             "pip.pyz",
         ]
@@ -323,14 +323,14 @@ def syncwemod(
                     except Exception as e:
                         log(f"Failed to remove old file '{old_path}': {e}")
 
-        log("Old WeMod data migration complete.")
+        log("Old Aurora data migration complete.")
 
     WeModExternal = os.path.join(
-        folder, "pfx/drive_c/users/steamuser/AppData/Roaming/WeMod"
-    )  # WeMod's expected data location within the Wine prefix
+        folder, "pfx/drive_c/users/steamuser/AppData/Roaming/CheatHappens/Aurora"
+    )  # Aurora's expected data location within the Wine prefix
 
     log(
-        f"Starting WeMod data sync. Central: '{WeModData}', Prefix: '{WeModExternal}'"
+        f"Starting Aurora data sync. Central: '{WeModData}', Prefix: '{WeModExternal}'"
     )
 
     # Ensure the central WeModData directory exists
@@ -375,11 +375,11 @@ def syncwemod(
         if wemod_data_has_content and wemod_external_has_content:
             # Both central and external directories contain data, prompt the user for preference.
             response = show_message(
-                "Warning: WeMod login data found in both the launcher's central directory "
+                "Warning: Aurora login data found in both the launcher's central directory "
                 "and the game prefix directory.\nWhich account would you like to use?\n\n"
                 "  Yes: Use the account from the Launcher's central directory (recommended).\n"
                 "  No: Use the account from the game prefix directory (this will overwrite the central data).",
-                title="Multiple WeMod accounts found",
+                title="Multiple Aurora accounts found",
                 yesno=True,
             )
 
@@ -443,10 +443,10 @@ def syncwemod(
                 ask_for_log=True,
             )
 
-    log("WeMod data synchronization complete.")
+    log("Aurora data synchronization complete.")
 
     if not os.path.exists(
-        os.path.join(SCRIPT_BASE, "wemod_data", "wemod_bin", "WeMod.exe")
+        os.path.join(SCRIPT_BASE, "aurora_data", "aurora_bin", "Aurora.exe")
     ):
         setup_main()
 
@@ -485,16 +485,16 @@ def init(proton: str, iswine: bool = False) -> None:
             f"Error: The GE-Proton version file could not be read, located at:\n'{prefix_version_file}'.\nTry to delete the game prefix located at:\n'{BASE_STEAM_COMPAT}'",
             timeout=30,
             ask_for_log=True,
-        )
+        )  
 
-    # If WeMod is not installed try to copy a working prefix to the current one
+    # If Aurora is not installed try to copy a working prefix to the current one
     log(f"Looking for init file '{INIT_FILE}'")
     if not os.path.exists(INIT_FILE):
         log(
             f"Looking for compatible wine prefixes in '{STEAM_COMPAT_FOLDER}' with Proton version '{current_version_parts[0]}.{current_version_parts[1]}'"
         )
 
-        # Get closest version that has WeMod installed
+        # Get closest version that has Aurora installed
         closest_version, closest_prefix_folder = scanfolderforversions(
             current_version_parts
         )
@@ -514,8 +514,8 @@ def init(proton: str, iswine: bool = False) -> None:
             and closest_version == current_version_parts
         ):
             response = show_message(
-                f"The Proton version {current_version_parts[0]}.{current_version_parts[1]} doesn't have WeMod installed. Would you like to use the perfectly matched Proton version {cut_version[0]}.{cut_version[1]} that has WeMod installed, which is very likely going to work?",
-                title="Very likely compatible WeMod version detected",
+                f"The Proton version {current_version_parts[0]}.{current_version_parts[1]} doesn't have Aurora installed. Would you like to use the perfectly matched Proton version {cut_version[0]}.{cut_version[1]} that has Aurora installed, which is very likely going to work?",
+                title="Very likely compatible Aurora version detected",
                 yesno=True,
             )
             if response == None:
@@ -526,8 +526,8 @@ def init(proton: str, iswine: bool = False) -> None:
             and closest_version[0] == current_version_parts[0]
         ):
             response = show_message(
-                f"The Proton version {current_version_parts[0]}.{current_version_parts[1]} doesn't have WeMod installed. Would you like to use the closest Proton version {cut_version[0]}.{cut_version[1]} that has WeMod installed, which is likely going to work?",
-                title="Likely compatible WeMod version detected",
+                f"The Proton version {current_version_parts[0]}.{current_version_parts[1]} doesn't have Aurora installed. Would you like to use the closest Proton version {cut_version[0]}.{cut_version[1]} that has Aurora installed, which is likely going to work?",
+                title="Likely compatible Aurora version detected",
                 yesno=True,
             )
             if response == None:
@@ -538,8 +538,8 @@ def init(proton: str, iswine: bool = False) -> None:
             and closest_version[0] != current_version_parts[0]
         ):
             response = show_message(
-                f"The Proton version {current_version_parts[0]}.{current_version_parts[1]} doesn't have WeMod installed. Would you like to attempt to use the closest Proton version {cut_version[0]}.{cut_version[1]} that has WeMod installed, which may result in some issues?",
-                title="Maybe compatible WeMod version detected",
+                f"The Proton version {current_version_parts[0]}.{current_version_parts[1]} doesn't have Aurora installed. Would you like to attempt to use the closest Proton version {cut_version[0]}.{cut_version[1]} that has Aurora installed, which may result in some issues?",
+                title="Maybe compatible Aurora version detected",
                 yesno=True,
             )
         else:
@@ -738,7 +738,7 @@ def download_prefix(proton_dir: str) -> None:
 
     syncwemod()
     if not os.path.isfile(
-        os.path.join(SCRIPT_BASE, "wemod_data", "wemod_bin", "WeMod.exe")
+        os.path.join(SCRIPT_BASE, "aurora_data", "aurora_bin", "Aurora.exe")
     ):
         setup_main()
 
@@ -767,8 +767,8 @@ def build_prefix(proton_dir: str) -> None:
     # Choose method to install dotnet48
     dotnet48_method = popup_options(
         "dotnet48",
-        "Would you like to install dotnet48 with winetricks (default for GE-Proton8 or above)\nor with wemod-launcher (ONLY USE FOR GE-Proton7)\nWARNING: The WeMod Launcher option isn't working well, you can try using it anyway (ONLY ON GE-Proton7)",
-        [["winetricks", "wemod-launcher"]],
+        "Would you like to install dotnet48 with winetricks (default for GE-Proton8 or above)\nor with aurora-launcher (ONLY USE FOR GE-Proton7)\nWARNING: The aurora-launcher option isn't working well, you can try using it anyway (ONLY ON GE-Proton7)",
+        [["winetricks", "aurora-launcher"]],
     )
 
     # Add dependencies to the list
@@ -779,7 +779,7 @@ def build_prefix(proton_dir: str) -> None:
 
     # Install dependencies
     log("Running dependencies installation. This could take a while...")
-    setup_main()
+    setup_main()  
 
     # Install each dependency
     response = 0
@@ -789,7 +789,7 @@ def build_prefix(proton_dir: str) -> None:
         response = winetricks(deps[dep_i], path)
 
     # Install dotnet48 using wemod-launcher if selected
-    if dotnet48_method and dotnet48_method == "wemod-launcher":
+    if dotnet48_method and dotnet48_method == "aurora-launcher":
         log("Installing dotnet48...")
         dotnet48 = get_dotnet48()
         wine("winecfg -v win7", path)
@@ -1195,4 +1195,4 @@ if __name__ == "__main__":
     log("\n\n\n")
 
     if not logy or logy == "Yes":
-        log(open_log=True)
+        log(open_log=True)  

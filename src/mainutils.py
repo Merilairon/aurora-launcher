@@ -506,7 +506,7 @@ def unpack_zip_with_progress(zip_path: str, dest_path: str) -> None:
 
     # Track errors during extraction
     extraction_errors = []
-    critical_files = ["pfx/.wemod_installer", "version"]
+    critical_files = ["pfx/.aurora_installer", "version"]
 
     def update_progress(unzipped: int, total: int) -> None:
         """Update the GUI with the current progress."""

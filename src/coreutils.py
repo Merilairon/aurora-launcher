@@ -36,15 +36,15 @@ _cached_user_agent = None
 
 # Function for logging messages
 def log(message: Optional[str] = None, open_log: bool = False) -> None:
-    oswemodlog = os.getenv("WEMOD_LOG")
+    oswemodlog = os.getenv("AURORA_LOG")
     wemodlog = oswemodlog
-    cowemodlog = load_conf_setting("WeModLog")
+    cowemodlog = load_conf_setting("AuroraLog")
     if not wemodlog:
         wemodlog = cowemodlog
     if wemodlog != "":
         try:
             if not wemodlog:
-                raise Exception("WeModLog unset")
+                raise Exception("AuroraLog unset")
             elif os.path.isabs(wemodlog):
                 os.makedirs(os.path.dirname(wemodlog), exist_ok=True)
             else:
@@ -55,11 +55,11 @@ def log(message: Optional[str] = None, open_log: bool = False) -> None:
                     exist_ok=True,
                 )
         except:
-            wemodlog = "wemod.log"
+            wemodlog = "aurora.log"
             if not oswemodlog:  # Only save if not a environment var
-                save_conf_setting("WeModLog", wemodlog)
+                save_conf_setting("AuroraLog", wemodlog)
 
-            new_message = f"WeModLog path was not given or invalid using path '{wemodlog}'\nIf you don't want to generate a log file, use WEMOD_LOG='' or set the config to WeModLog=''"
+            new_message = f"AuroraLog path was not given or invalid using path '{wemodlog}'\nIf you don't want to generate a log file, use AURORA_LOG='' or set the config to AuroraLog=''"
             if message == None:
                 message = new_message
             else:
@@ -285,10 +285,10 @@ def pip(command: str, venv_path: Optional[str] = None) -> int:
             return 99
         else:
             show_message(
-                "The pip inside the virtual environment reported an error.\nThis may require the deletion of the virtual environment folder;\nby default, the folder is named named wemod_venv\nand is located inside the wemod-launcher folder"
+                "The pip inside the virtual environment reported an error.\nThis may require the deletion of the virtual environment folder;\nby default, the folder is named aurora_venv\nand is located inside the aurora-launcher folder"
             )
             log(
-                f"A pip error occurred.\nThis may require the deletion of the virtual environment folder;\nby default, the folder is named named wemod_venv\nand is located inside the wemod-launcher folder.\nError message:\n\t{stdout}\n\t{stderr}"
+                f"A pip error occurred.\nThis may require the deletion of the virtual environment folder;\nby default, the folder is named aurora_venv\nand is located inside the aurora-launcher folder.\nError message:\n\t{stdout}\n\t{stderr}"
             )
 
     # Try to use the built-in pip
@@ -386,7 +386,7 @@ def monitor_file(
         log("Finished early game close detention")
     else:
         log(
-            "The game ran long enough, wemod is now allowed to close on game exit, therefore early game close detention is finished"
+            "The game ran long enough, Aurora is now allowed to close on game exit, therefore early game close detention is finished"
         )
 
 
@@ -397,23 +397,23 @@ def bat_respond(responsefile: str, bout: Optional[int]) -> Optional[bool]:
         if bout != None:
             batresp = show_message(
                 returnmessage
-                + f'\nYou can still use wemod by clicking "Yes",\nthis will keep wemod open in the backround\nIf you want to close WeMod click "No"\nWeMod will automaticly close in {bout} seconds, if nothing is done',
+                + f'\nYou can still use Aurora by clicking "Yes",\nthis will keep Aurora open in the background\nIf you want to close Aurora click "No"\nAurora will automatically close in {bout} seconds, if nothing is done',
                 "BAT Warning",
                 bout,
                 True,
             )
             log(
-                f"The user selected {batresp} after being asked to wait longer for WeMod"
+                f"The user selected {batresp} after being asked to wait longer for Aurora"
             )
         if bout == None or batresp == "Yes":
             show_message(
                 returnmessage
-                + '\nClick "OK" ONLY if you are ready to close WeMod\nTo KEEP it open, just minimize THIS message box.',
+                + '\nClick "OK" ONLY if you are ready to close Aurora\nTo KEEP it open, just minimize THIS message box.',
                 "BAT Warning",
                 None,
                 False,
             )
-            log("The user accepted to close WeMod")
+            log("The user accepted to close Aurora")
         os.remove(responsefile)
         return True
     return None
@@ -530,7 +530,7 @@ def get_user_input(
 
 
 def script_manager() -> None:
-    script_name = "wemod-launcher"
+    script_name = "aurora-launcher"
     script_version = "1.540"
     last_name = load_conf_setting("ScriptName")
     last_version = load_conf_setting("Version")
@@ -560,6 +560,6 @@ def script_manager() -> None:
     save_conf_setting("Version", script_version)
     log(f"The script {script_name} is running on version {script_version}")
     print(
-        f"The WeMod script {script_name} is running on version {script_version}"
+        f"The Aurora script {script_name} is running on version {script_version}"
     )
     return
